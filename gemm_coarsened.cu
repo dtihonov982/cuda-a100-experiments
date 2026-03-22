@@ -64,14 +64,19 @@ __global__ void gemm_coarsened(float *A, float *B, float *C, int M, int N, int K
         //
         // All reads are from shared memory, all writes to registers.
         // The outer product gives WM*WN = 16 FLOPs per shared memory read pair.
+        #pragma unroll
         for (int k = 0; k < BK; k++) {
             float a_reg[WM], b_reg[WN];
 
+            #pragma unroll
             for (int i = 0; i < WM; i++) a_reg[i] = tileA[outRow + i][k];
+            #pragma unroll
             for (int j = 0; j < WN; j++) b_reg[j] = tileB[k][outCol + j];
 
             // Outer product: every (i,j) pair gets one multiply-add
+            #pragma unroll
             for (int i = 0; i < WM; i++)
+                #pragma unroll
                 for (int j = 0; j < WN; j++)
                     sum[i][j] += a_reg[i] * b_reg[j];
         }
