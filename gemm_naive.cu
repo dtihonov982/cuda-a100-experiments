@@ -87,9 +87,12 @@ int main() {
     const int CHECK = 64;
     gemm_cpu(h_A, h_B, h_ref, CHECK, CHECK, K);
     float max_err = 0.0f;
-    for (int i = 0; i < CHECK * CHECK; i++) {
-        float err = fabsf(h_C[i] - h_ref[i]);
-        if (err > max_err) max_err = err;
+    for (int i = 0; i < CHECK; i++) {
+        for (int j = 0; j < CHECK; j++) {
+            // h_C has stride N (full matrix width); h_ref has stride CHECK
+            float err = fabsf(h_C[i * N + j] - h_ref[i * CHECK + j]);
+            if (err > max_err) max_err = err;
+        }
     }
     printf("Max error vs CPU: %e %s\n", max_err, max_err < 1e-3f ? "(OK)" : "(FAIL)");
 
