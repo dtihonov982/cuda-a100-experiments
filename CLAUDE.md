@@ -19,8 +19,31 @@ Never skip to an optimized version without first understanding why the naive one
 - When introducing a new concept (shared memory, warp, occupancy, etc.), define it plainly before using it.
 
 ## Current progress
-- [x] hello_cuda.cu — device query, vector add, CUDA_CHECK macro, cudaEvents
-- [ ] gemm_naive.cu — naive matrix multiply, 2D thread indexing, global memory bottleneck
+
+### GEMM (matrix multiply)
+- [x] gemm_naive.cu — 1 thread = 1 output, global memory only. 14.7% A100 utilization.
+- [x] gemm_tiled.cu — 16×16 shared memory tile. 20.9% utilization.
+- [x] gemm_coarsened.cu — 4×4 register tile per thread (thread coarsening). 42.5% utilization.
+
+### Reductions (per-row)
+- [x] softmax_naive.cu — 3-pass: max, exp-sum, output. Warp shuffle reduction. 128 GB/s.
+- [x] softmax_online.cu — Online softmax: fused max+sum in one pass. 152 GB/s.
+- [x] layernorm.cu — Single-pass mean+variance (sum + sum_sq), rsqrtf, γ/β. 315 GB/s.
+
+### Attention
+- [x] flash_attention.cu — Tiled attention with online softmax, avoids N×N matrix. Single head, seq=512, head_dim=64.
+
+### Quantization
+- [x] quantize.cu — Per-row INT8 quantization + dequantization. 4× memory reduction. ~0.5% relative error.
+- [ ] gemm_w8a16.cu — W8A16 GEMM: int8 weights × fp32 activations, dequantize on-the-fly.
+
+## Concepts introduced so far
+- 2D thread/block indexing, cudaEvents timing
+- Global memory coalescing, shared memory, bank conflicts (+1 padding)
+- Register tiling, #pragma unroll, arithmetic intensity, roofline model
+- Warp shuffles (__shfl_xor_sync), parallel reduction, 2-warp cross-reduction
+- Online softmax (running max/sum correction), Welford-style single-pass stats
+- rsqrtf, __float2int_rn, per-row quantization scales
 
 ## Environment
 - GPU: NVIDIA A100 80GB, compute capability 8.0
