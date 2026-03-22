@@ -1,0 +1,82 @@
+# Compiled CUDA/C++
+*.o
+*.a
+*.so
+*.out
+*.ptx
+*.cubin
+*.fatbin
+
+# Build directories
+build/
+dist/
+out/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+.eggs/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Model weights & large data files
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.bin
+*.h5
+*.hdf5
+*.npy
+*.npz
+*.pkl
+*.pickle
+
+# Data directories
+data/
+datasets/
+checkpoints/
+runs/
+wandb/
+mlruns/
+
+# Profiling output
+*.nvvp
+*.qdrep
+*.nsys-rep
+*.sqlite
+*.ncu-rep
+
+# CUDA toolkit artifacts
+*.i
+*.ii
+*.gpu
+*.cudafe1.cpp
+*.cudafe1.gpu
+*.cudafe2.gpu
+
+# IDE / editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Environment variables
+.env
+.env.local
