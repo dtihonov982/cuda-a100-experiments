@@ -1,15 +1,19 @@
-NVCC    ?= nvcc
-NVCCFLAGS = -O2 -arch=sm_80
+NVCC      ?= nvcc
+NVCCFLAGS  = -O2 -arch=sm_80
+BUILDDIR   = build
 
 SRCS := $(wildcard *.cu)
-BINS := $(SRCS:.cu=)
+BINS := $(patsubst %.cu,$(BUILDDIR)/%,$(SRCS))
 
-all: $(BINS)
+all: $(BUILDDIR) $(BINS)
 
-%: %.cu
+$(BUILDDIR):
+	mkdir -p $(BUILDDIR)
+
+$(BUILDDIR)/%: %.cu
 	$(NVCC) $(NVCCFLAGS) -o $@ $<
 
 clean:
-	rm -f $(BINS)
+	rm -rf $(BUILDDIR)
 
 .PHONY: all clean
