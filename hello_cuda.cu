@@ -35,6 +35,7 @@ int main() {
     int threads = 256;
     int blocks = (N + threads - 1) / threads;
     add<<<blocks, threads>>>(d_a, d_b, d_c, N);
+    cudaDeviceSynchronize();
 
     cudaMemcpy(h_c, d_c, size, cudaMemcpyDeviceToHost);
 
