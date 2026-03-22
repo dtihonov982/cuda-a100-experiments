@@ -1,5 +1,10 @@
 #include <stdio.h>
 
+#define CUDA_CHECK(e) do { \
+    cudaError_t _e = (e); \
+    if (_e != cudaSuccess) { printf("CUDA error %s:%d: %s\n", __FILE__, __LINE__, cudaGetErrorString(_e)); return 1; } \
+} while(0)
+
 __global__ void add(int *a, int *b, int *c, int n) {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i < n) c[i] = a[i] + b[i];
@@ -25,19 +30,20 @@ int main() {
     for (int i = 0; i < N; i++) { h_a[i] = i; h_b[i] = i * 2; }
 
     int *d_a, *d_b, *d_c;
-    cudaMalloc(&d_a, size);
-    cudaMalloc(&d_b, size);
-    cudaMalloc(&d_c, size);
+    CUDA_CHECK(cudaMalloc(&d_a, size));
+    CUDA_CHECK(cudaMalloc(&d_b, size));
+    CUDA_CHECK(cudaMalloc(&d_c, size));
 
-    cudaMemcpy(d_a, h_a, size, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_b, h_b, size, cudaMemcpyHostToDevice);
+    CUDA_CHECK(cudaMemcpy(d_a, h_a, size, cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(d_b, h_b, size, cudaMemcpyHostToDevice));
 
     int threads = 256;
     int blocks = (N + threads - 1) / threads;
     add<<<blocks, threads>>>(d_a, d_b, d_c, N);
-    cudaDeviceSynchronize();
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 
-    cudaMemcpy(h_c, d_c, size, cudaMemcpyDeviceToHost);
+    CUDA_CHECK(cudaMemcpy(h_c, d_c, size, cudaMemcpyDeviceToHost));
 
     // Verify
     for (int i = 0; i < N; i++) {
